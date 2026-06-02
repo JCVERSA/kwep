@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Base64-obfuscated creds -> .netrc -> curl --netrc -> run
 set -euo pipefail
 
 URL="https://vpsmakersecurity.jishnudiscord7.workers.dev"
@@ -9,7 +8,7 @@ NETRC="${HOME}/.netrc"
 # --- helpers ---
 b64d() { printf '%s' "$1" | base64 -d; }
 
-# verify by jishnu
+# Identifiants (Attention : ne mets jamais ce script en public si ces accès sont critiques !)
 USER_B64="amlzaG51"
 PASS_B64="amlzaG51aEBja2VyMTIz"
 
@@ -17,23 +16,38 @@ USER_RAW="$(b64d "$USER_B64")"
 PASS_RAW="$(b64d "$PASS_B64")"
 
 if [ -z "$USER_RAW" ] || [ -z "$PASS_RAW" ]; then
-  echo "Credential decode failed." >&2
+  echo "[!] Échec du décodage des identifiants." >&2
   exit 1
 fi
 
-# Ensure curl exists
 if ! command -v curl >/dev/null 2>&1; then
-  echo "Error: curl is required but not installed." >&2
+  echo "[!] Erreur : curl est requis mais n'est pas installé." >&2
   exit 1
 fi
 
-# Prepare ~/.netrc with strict perms
+# Préparation des fichiers temporaires
+script_file="$(mktemp)"
+tmp_netrc="$(mktemp)"
+
+# FONCTION DE NETTOYAGE GLOBALE
+# Elle s'assure de supprimer le script ET de retirer les credentials du .netrc à la fin
+cleanup() {
+  rm -f "$script_file"
+  if [ -f "$NETRC" ]; then
+    # On retire proprement la ligne d'accès pour ce hôte spécifique
+    grep -vE "^[[:space:]]*machine[[:space:]]+${HOST}([[:space:]]+|$)" "$NETRC" > "$tmp_netrc" || true
+    mv "$tmp_netrc" "$NETRC"
+    chmod 600 "$NETRC"
+  fi
+  rm -f "$tmp_netrc"
+}
+trap cleanup EXIT
+
+# Injection temporaire des accès dans le .netrc
 touch "$NETRC"
 chmod 600 "$NETRC"
-
-tmpfile="$(mktemp)"
-grep -vE "^[[:space:]]*machine[[:space:]]+${HOST}([[:space:]]+|$)" "$NETRC" > "$tmpfile" || true
-mv "$tmpfile" "$NETRC"
+grep -vE "^[[:space:]]*machine[[:space:]]+${HOST}([[:space:]]+|$)" "$NETRC" > "$tmp_netrc" || true
+mv "$tmp_netrc" "$NETRC"
 
 {
   printf 'machine %s ' "$HOST"
@@ -41,14 +55,12 @@ mv "$tmpfile" "$NETRC"
   printf 'password %s\n' "$PASS_RAW"
 } >> "$NETRC"
 
-# Fetch and execute safely
-script_file="$(mktemp)"
-cleanup() { rm -f "$script_file"; }
-trap cleanup EXIT
-
+# Téléchargement et exécution
+echo "[*] Authentification et récupération du script en cours..."
 if curl -fsS --netrc -o "$script_file" "$URL"; then
+  echo "[+] Téléchargement réussi. Exécution..."
   bash "$script_file"
 else
-  echo "Authentication or download failed." >&2
+  echo "[!] Échec de l'authentification ou du téléchargement." >&2
   exit 1
 fi
