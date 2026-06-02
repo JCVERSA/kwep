@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Script de déploiement RDP + Tailscale durci
+set -euo pipefail
+
+# Force APT à ne poser aucune question
+export DEBIAN_FRONTEND=noninteractive
+
+echo "=========================================="
+echo "   RDP & TAILSCALE BY GAMERBOY_l          "
+echo "          Debian 11 / Google IDX          "
+echo "=========================================="
+sleep 1
+
+echo "[1/9] Mise à jour du système (Mode silencieux)..."
+sudo apt-get update -y
+sudo apt-get -o Dpkg::Options::="--force-confold" --force-yes -y upgrade
+
+echo "[2/9] Installation de XFCE4, XRDP, DBUS et Firefox..."
+sudo apt-get -o Dpkg::Options::="--force-confold" -y install \
+    xfce4 \
+    xfce4-goodies \
+    xrdp \
+    dbus-x11 \
+    firefox-esr
+
+echo "[3/9] Configuration de .xsession pour l'utilisateur actuel..."
+cat << 'EOF' > ~/.xsession
+export $(dbus-launch)
+xfce4-session
+EOF
+
+echo "[4/9] Sécurisation des permissions de .xsession..."
+chmod 644 ~/.xsession
+
+echo "[5/9] Ajout de l'utilisateur xrdp au groupe ssl-cert..."
+sudo adduser xrdp ssl-cert || true
+
+echo "[6/9] Démarrage du service XRDP..."
+if systemctl is-systemd-managed --quiet 2>/dev/null || [ -d /run/systemd/system ]; then
+    sudo systemctl enable xrdp
+    sudo systemctl restart xrdp
+else
+    echo "[!] Systemd non détecté, utilisation du fallback SysVinit..."
+    sudo service xrdp restart || sudo /etc/init.d/xrdp restart
+fi
+
+echo "[7/9] Configuration de Firefox pour l'environnement RDP..."
+sudo sed -i 's|^Exec=firefox-esr.*|Exec=firefox-esr --no-sandbox --disable-seccomp %u|' /usr/share/applications/firefox-esr.desktop
+
+echo "[8/9] Installation de Tailscale..."
+if ! command -v tailscale >/dev/null 2>&1; then
+    curl -fsSL https://tailscale.com/install.sh | sh
+else
+    echo "[+] Tailscale est déjà installé."
+fi
+
+echo "[9/9] Connexion à Tailscale..."
+# Note : On lance 'tailscale up' de manière à ce qu'il affiche le lien d'authentification dans ton terminal.
+echo "--------------------------------------------------------"
+echo "👉 CLIQUER SUR LE LIEN CI-DESSOUS POUR CONNECTER L'IDX :"
+echo "--------------------------------------------------------"
+sudo tailscale up
+
+echo "=========================================="
+echo " ✅ Bureau XRDP configuré"
+echo " ✅ Service démarré en tâche de fond"
+echo " ✅ Tailscale est configuré"
+echo "=========================================="
+echo "Une fois connecté, utilise l'IP Tailscale de cette machine pour t'y connecter en RDP."
