@@ -1,0 +1,55 @@
+import time
+import random
+import sys
+import pyautogui
+
+# --- CONFIGURATION ET SÉCURITÉ ---
+# SÉCURITÉ : Si tu pousses ta souris tout en haut à gauche de l'écran (coordonnées 0,0),
+# le script s'arrêtera immédiatement. C'est le bouton d'urgence (Fail-Safe).
+pyautogui.FAILSAFE = True
+
+TEXT_TO_TYPE = """Bonjour, ceci est un test de script d'automatisation avancé.
+Il prend en compte les sauts de ligne,
+et simule une frappe fluide caractère par caractère.
+Utile pour tester la réactivité d'une interface !"""
+
+def countdown(seconds):
+    """Affiche un compte à rebours dans la console pour laisser le temps de focus la bonne fenêtre."""
+    print("Préparation du script...")
+    for i in range(seconds, 0, -1):
+        print(f"Démarrage dans {i} secondes... Placez votre curseur dans la zone de texte.")
+        time.sleep(1)
+    print("⚡ Démarrage de la frappe ! ⚡\n")
+
+def advanced_typewriter(text, base_speed=0.05, variance=0.05):
+    """
+    Tape le texte de manière fluide avec un délai légèrement aléatoire entre chaque touche.
+    
+    :param text: Le texte à taper
+    :param base_speed: Le temps d'attente minimum entre deux touches (en secondes)
+    :param variance: La variation aléatoire maximale à ajouter au temps d'attente
+    """
+    try:
+        for char in text:
+            # Gestion spécifique des sauts de ligne pour assurer la compatibilité
+            if char == '\n':
+                pyautogui.press('enter')
+            else:
+                pyautogui.write(char)
+            
+            # Calcul d'un délai pseudo-aléatoire pour simuler un rythme naturel
+            delay = base_speed + random.uniform(0, variance)
+            time.sleep(delay)
+            
+    except pyautogui.FailSafeException:
+        print("\n[STOP] Script interrompu d'urgence via le mouvement de souris (Fail-Safe).")
+        sys.exit()
+
+if __name__ == "__main__":
+    # 1. On lance un compte à rebours de 5 secondes
+    countdown(5)
+    
+    # 2. On exécute la frappe automatique
+    advanced_typewriter(TEXT_TO_TYPE, base_speed=0.03, variance=0.07)
+    
+    print("\n[OK] Fin du script de frappe automatique.")
