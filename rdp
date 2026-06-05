@@ -6,7 +6,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
 echo "=========================================="
-echo "   RDP & TAILSCALE BY Neon_l          "
+echo "   RDP & TAILSCALE BY GAMERBOY_l          "
 echo "          Debian 11 / Google IDX          "
 echo "=========================================="
 sleep 1
@@ -47,10 +47,15 @@ fi
 echo "[7/9] Configuration de Firefox pour l'environnement RDP..."
 sudo sed -i 's|^Exec=firefox-esr.*|Exec=firefox-esr --no-sandbox --disable-seccomp %u|' /usr/share/applications/firefox-esr.desktop
 
+echo "[8/9] Installation de Tailscale..."
+if ! command -v tailscale >/dev/null 2>&1; then
+    curl -fsSL https://tailscale.com/install.sh | sh
+else
+    echo "[+] Tailscale est déjà installé."
+fi
 
-echo "=========================================="
-echo " ✅ Bureau XRDP configuré"
-echo " ✅ Service démarré en tâche de fond"
-echo " "
-echo "=========================================="
-echo "Une fois connecté, utilise l'IP Tailscale de cette machine pour t'y connecter en RDP."
+echo "[9/9] Connexion à Tailscale..."
+echo "--------------------------------------------------------"
+echo "👉 CLIQUER SUR LE LIEN CI-DESSOUS POUR CONNECTER L'IDX :"
+echo "--------------------------------------------------------"
+sudo tailscale up
