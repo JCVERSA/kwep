@@ -76,17 +76,19 @@ translate() {
 # -------------------------
 # Interface Graphique (Banner)
 # -------------------------
+print_ascii_art() {
+  printf "    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗\n"
+  printf "    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║\n"
+  printf "    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║\n"
+  printf "    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║\n"
+  printf "    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║\n"
+  printf "    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝\n"
+}
+
 show_ui_banner() {
   clear
   echo -e "${TEXT_PURPLE}"
-  cat << 'EOF'
-    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
-    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
-    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
-    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
-    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
-    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
-EOF
+  print_ascii_art
   echo -e "  ${TEXT_CYAN}$(translate TITLE)${RESET}\n"
 }
 
@@ -133,7 +135,7 @@ navigate_menu() {
 }
 
 # -------------------------
-# Logique Workspace IDX (Version Sécurisée sans EOF bloquant)
+# Logique Workspace IDX
 # -------------------------
 deploy_idx_workspace() {
   local target_dir="$HOME/vps123/.idx"
@@ -142,7 +144,6 @@ deploy_idx_workspace() {
   rm -rf "$HOME/myapp" "$HOME/flutter"
   mkdir -p "$target_dir"
   
-  # Utilisation de printf pour éliminer définitivement les bugs d'écriture
   printf '{ pkgs, ... }: {\n' > "$target_dir/dev.nix"
   printf '  channel = "stable-24.05";\n' >> "$target_dir/dev.nix"
   printf '  packages = with pkgs; [ unzip openssh git sudo qemu ];\n' >> "$target_dir/dev.nix"
@@ -190,19 +191,12 @@ select_language_startup() {
   while true; do
     clear
     echo -e "${TEXT_PURPLE}"
-    cat << 'EOF'
-    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
-    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
-    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
-    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
-    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
-    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
-EOF
+    print_ascii_art
     echo -e "${TEXT_CYAN}  ┌────────────────────────────────────────────────────────┐${RESET}"
     echo -e "${TEXT_CYAN}  │${RESET}  ${BOLD_WHITE}SELECT LANGUAGE / CHOISIR LA LANGUE                  ${TEXT_CYAN}│${RESET}"
     echo -e "${TEXT_CYAN}  ├────────────────────────────────────────────────────────┤${RESET}"
-    echo -e "${TEXT_CYAN}  │${RESET}  Français (French)                                ${TEXT_CYAN}│${RESET}"
-    echo -e "${TEXT_CYAN}  │${RESET}  English (Anglais)                                ${TEXT_CYAN}│${RESET}"
+    echo -e "${TEXT_CYAN}  │${RESET}  [1] Français (French)                                ${TEXT_CYAN}│${RESET}"
+    echo -e "${TEXT_CYAN}  │${RESET}  [2] English (Anglais)                                ${TEXT_CYAN}│${RESET}"
     echo -e "${TEXT_CYAN}  └────────────────────────────────────────────────────────┘${RESET}"
     echo -ne "\n${TEXT_YELLOW}  ➔ Saisir votre choix / Enter choice (1-2) : ${RESET}"
     read -r lang_choice
