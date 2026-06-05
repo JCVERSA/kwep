@@ -26,50 +26,57 @@ RDP_URL="https://raw.githubusercontent.com/JCVERSA/kwep/refs/heads/main/rdp"
 CURRENT_LANG="fr"
 
 # -------------------------
-# Dictionnaire de Traduction
+# Dictionnaires de Traduction
 # -------------------------
+translate_fr() {
+  case "$1" in
+    TITLE) echo "─── ARCHITECTE CENTRAL D'ENVIRONNEMENT ───" ;;
+    PANEL) echo "PANNEAU DE CONTROLE PRINCIPAL" ;;
+    OPT_1) echo "Déployer l'infrastructure GitHub Remote VPS" ;;
+    OPT_2) echo "Optimiser l'environnement Google IDX" ;;
+    OPT_3) echo "Boîte à outils (Tools)" ;;
+    OPT_4) echo "Interrompre la session et quitter" ;;
+    TOOLS_PANEL) echo "COMPOSANTS & OUTILS ACCESSOIRES" ;;
+    TOOL_XFCE) echo "Installer le Bureau Graphique XFCE (RDP Script)" ;;
+    TOOL_BACK) echo "Retour au menu principal" ;;
+    PROMPT) echo "Utilise les flèches [↑/↓] et appuie sur [ENTREE]" ;;
+    DEPLOYING) echo "[*] Lancement du déploiement distant..." ;;
+    IDX_INIT) echo "[*] Initialisation des composants Google IDX..." ;;
+    IDX_SUCCESS) echo "[+] Configuration dev.nix injectée avec succès." ;;
+    VALIDATE) echo "➔ Valider et exécuter le script de build ? (y/n) : " ;;
+    SYNC) echo "[*] Synchronisation avec l'hôte distant..." ;;
+    CANCEL) echo "[!] Processus interrompu par l'opérateur." ;;
+    EXIT_MSG) echo "Fermeture de la console N3ON." ;;
+  esac
+}
+
+translate_en() {
+  case "$1" in
+    TITLE) echo "─── SYSTEM ENVIRONMENT CORE ARCHITECT ───" ;;
+    PANEL) echo "MAIN CONTROL PANEL" ;;
+    OPT_1) echo "Deploy GitHub Remote VPS Infrastructure" ;;
+    OPT_2) echo "Optimize Google IDX Environment" ;;
+    OPT_3) echo "Toolbox (Tools)" ;;
+    OPT_4) echo "Terminate session and exit" ;;
+    TOOLS_PANEL) echo "COMPONENTS & ACCESSORY TOOLS" ;;
+    TOOL_XFCE) echo "Install XFCE Graphical Desktop (RDP Script)" ;;
+    TOOL_BACK) echo "Return to main menu" ;;
+    PROMPT) echo "Use arrow keys [↑/↓] and press [ENTER]" ;;
+    DEPLOYING) echo "[*] Launching remote deployment..." ;;
+    IDX_INIT) echo "[*] Initializing Google IDX components..." ;;
+    IDX_SUCCESS) echo "[+] dev.nix configuration successfully injected." ;;
+    VALIDATE) echo "➔ Validate and execute build script? (y/n) : " ;;
+    SYNC) echo "[*] Synchronizing with remote host..." ;;
+    CANCEL) echo "[!] Process interrupted by operator." ;;
+    EXIT_MSG) echo "Closing N3ON console." ;;
+  esac
+}
+
 translate() {
-  local key="$1"
   if [ "$CURRENT_LANG" = "fr" ]; then
-    case "$key" in
-      TITLE) echo "─── ARCHITECTE CENTRAL D'ENVIRONNEMENT ───" ;;
-      PANEL) echo "PANNEAU DE CONTROLE PRINCIPAL" ;;
-      OPT_1) echo "Déployer l'infrastructure GitHub Remote VPS" ;;
-      OPT_2) echo "Optimiser l'environnement Google IDX" ;;
-      OPT_3) echo "Boîte à outils (Tools)" ;;
-      OPT_4) echo "Interrompre la session et quitter" ;;
-      TOOLS_PANEL) echo "COMPOSANTS & OUTILS ACCESSOIRES" ;;
-      TOOL_XFCE) echo "Installer le Bureau Graphique XFCE (RDP Script)" ;;
-      TOOL_BACK) echo "Retour au menu principal" ;;
-      PROMPT) echo "Utilise les flèches [↑/↓] et appuie sur [ENTREE]" ;;
-      DEPLOYING) echo "[*] Lancement du déploiement distant..." ;;
-      IDX_INIT) echo "[*] Initialisation des composants Google IDX..." ;;
-      IDX_SUCCESS) echo "[+] Configuration dev.nix injectée avec succès." ;;
-      VALIDATE) echo "➔ Valider et exécuter le script de build ? (y/n) : " ;;
-      SYNC) echo "[*] Synchronisation avec l'hôte distant..." ;;
-      CANCEL) echo "[!] Processus interrompu par l'opérateur." ;;
-      EXIT_MSG) echo "Fermeture de la console N3ON." ;;
-    esac
+    translate_fr "$1"
   else
-    case "$key" in
-      TITLE) echo "─── SYSTEM ENVIRONMENT CORE ARCHITECT ───" ;;
-      PANEL) echo "MAIN CONTROL PANEL" ;;
-      OPT_1) echo "Deploy GitHub Remote VPS Infrastructure" ;;
-      OPT_2) echo "Optimize Google IDX Environment" ;;
-      OPT_3) echo "Toolbox (Tools)" ;;
-      OPT_4) echo "Terminate session and exit" ;;
-      TOOLS_PANEL) echo "COMPONENTS & ACCESSORY TOOLS" ;;
-      TOOL_XFCE) echo "Install XFCE Graphical Desktop (RDP Script)" ;;
-      TOOL_BACK) echo "Return to main menu" ;;
-      PROMPT) echo "Use arrow keys [↑/↓] and press [ENTER]" ;;
-      DEPLOYING) echo "[*] Launching remote deployment..." ;;
-      IDX_INIT) echo "[*] Initializing Google IDX components..." ;;
-      IDX_SUCCESS) echo "[+] dev.nix configuration successfully injected." ;;
-      VALIDATE) echo "➔ Validate and execute build script? (y/n) : " ;;
-      SYNC) echo "[*] Synchronizing with remote host..." ;;
-      CANCEL) echo "[!] Process interrupted by operator." ;;
-      EXIT_MSG) echo "Closing N3ON console." ;;
-    esac
+    translate_en "$1"
   fi
 }
 
@@ -194,71 +201,4 @@ select_language_startup() {
     print_ascii_art
     echo -e "${TEXT_CYAN}  ┌────────────────────────────────────────────────────────┐${RESET}"
     echo -e "${TEXT_CYAN}  │${RESET}  ${BOLD_WHITE}SELECT LANGUAGE / CHOISIR LA LANGUE                  ${TEXT_CYAN}│${RESET}"
-    echo -e "${TEXT_CYAN}  ├────────────────────────────────────────────────────────┤${RESET}"
-    echo -e "${TEXT_CYAN}  │${RESET}  [1] Français (French)                                ${TEXT_CYAN}│${RESET}"
-    echo -e "${TEXT_CYAN}  │${RESET}  [2] English (Anglais)                                ${TEXT_CYAN}│${RESET}"
-    echo -e "${TEXT_CYAN}  └────────────────────────────────────────────────────────┘${RESET}"
-    echo -ne "\n${TEXT_YELLOW}  ➔ Saisir votre choix / Enter choice (1-2) : ${RESET}"
-    read -r lang_choice
-    
-    if [ "$lang_choice" = "1" ]; then
-      CURRENT_LANG="fr"
-      break
-    elif [ "$lang_choice" = "2" ]; then
-      CURRENT_LANG="en"
-      break
-    fi
-  done
-}
-
-# -------------------------
-# Programme Principal
-# -------------------------
-select_language_startup
-
-while true; do
-  main_opts=(
-    "$(translate OPT_1)"
-    "$(translate OPT_2)"
-    "$(translate OPT_3)"
-    "$(translate OPT_4)"
-  )
-
-  navigate_menu "$(translate PANEL)" "${main_opts[@]}"
-  action=$?
-
-  case "$action" in
-    0)
-      echo -e "\n${TEXT_GREEN}$(translate DEPLOYING)${RESET}"
-      bash <(curl -fsSL "$GITHUB_URL")
-      echo -e "\n${TEXT_YELLOW}Press enter to continue...${RESET}"
-      read -r
-      ;;
-      
-    1)
-      deploy_idx_workspace
-      echo -ne "${TEXT_YELLOW}$(translate VALIDATE)${RESET}"
-      read -r confirm
-      case "$confirm" in
-        [yY]*)
-          echo -e "${TEXT_CYAN}$(translate SYNC)${RESET}"
-          bash <(curl -fsSL "$GOOGLE_URL")
-          ;;
-        *)
-          echo -e "${TEXT_RED}$(translate CANCEL)${RESET}"
-          ;;
-      esac
-      echo -e "\n${TEXT_YELLOW}Press enter to continue...${RESET}"
-      read -r
-      ;;
-      
-    2)
-      show_tools_submenu
-      ;;
-      
-    3)
-      echo -e "\n${TEXT_RED}[*] $(translate EXIT_MSG)${RESET}"
-      exit 0
-      ;;
-  esac
-done
+    echo -
