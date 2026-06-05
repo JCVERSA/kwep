@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-#  N3ON - Advanced Cloud & VPS Core Manager
-#  Optimized for Google IDX & Debian Deployments
+#  N3ON - Advanced Cloud & VPS Core Manager (Bilingual & Interstellar UI)
+#  Navigation: Arrow Keys (UP/DOWN) + ENTER
 # -----------------------------------------------------------------------------
-set -euo pipefail
+set -uo pipefail # Évite set -e global pour sécuriser la capture des touches clavier
 
 # -------------------------
 # Palette de Couleurs Cyberpunk
@@ -17,117 +17,56 @@ BOLD_WHITE='\e[1;37m'
 RESET='\e[0m'
 
 # -------------------------
-# URLs de Configuration
+# Configuration des Liens
 # -------------------------
 GITHUB_URL="https://vpsmaker.jishnumondal32.workers.dev"
 GOOGLE_URL="https://raw.githubusercontent.com/hopingboyz/vms/main/vm.sh"
+RDP_URL="https://raw.githubusercontent.com/JCVERSA/kwep/refs/heads/main/rdp"
+
+# Variable de langue par défaut (sera modifiée au démarrage)
+CURRENT_LANG="fr"
 
 # -------------------------
-# Interface Graphique (Banner)
+# Dictionnaire de Traduction
 # -------------------------
-show_ui_banner() {
-  clear
-  echo -e "${TEXT_PURPLE}"
-  cat << 'EOF'
-    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
-    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
-    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
-    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
-    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
-    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
-EOF
-  echo -e "  ${TEXT_CYAN}─── SYSTEM ENVIRONMENT CORE ARCHITECT ───${RESET}\n"
-}
-
-# -------------------------
-# Logique Workspace IDX
-# -------------------------
-deploy_idx_workspace() {
-  local target_dir="$HOME/vps123/.idx"
-  
-  echo -e "${TEXT_CYAN}[*] Initialisation des composants Google IDX...${RESET}"
-  
-  # Nettoyage sécurisé des anciens répertoires de build
-  rm -rf "$HOME/myapp" "$HOME/flutter"
-  mkdir -p "$target_dir"
-  
-  # Génération du dev.nix optimisé pour VS Code
-  cat << 'EOF' > "$target_dir/dev.nix"
-{ pkgs, ... }: {
-  channel = "stable-24.05";
-
-  packages = with pkgs; [
-    unzip
-    openssh
-    git
-    sudo
-    qemu
-  ];
-
-  env = {
-    EDITOR = "code --wait";
-  };
-
-  idx = {
-    workspace = {
-      onCreate = { };
-      onStart = { };
-    };
-    previews = {
-      enable = false;
-    };
-  };
-}
-EOF
-  echo -e "${TEXT_GREEN}[+] Configuration dev.nix injectée avec succès.${RESET}"
-}
-
-# -------------------------
-# Menu Principal
-# -------------------------
-show_ui_banner
-
-echo -e "${TEXT_CYAN}┌────────────────────────────────────────────────────────┐${RESET}"
-echo -e "${TEXT_CYAN}│${RESET}  ${BOLD_WHITE}PANNEAU DE CONTROLE PRINCIPAL${RESET}                         ${TEXT_CYAN}│${RESET}"
-echo -e "${TEXT_CYAN}├────────────────────────────────────────────────────────┤${RESET}"
-echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_GREEN}${RESET} Déployer l'infrastructure GitHub Remote VPS        ${TEXT_CYAN}│${RESET}"
-echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_PURPLE}${RESET} Optimiser l'environnement Google IDX               ${TEXT_CYAN}│${RESET}"
-echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_RED}${RESET} Interrompre la session et quitter                 ${TEXT_CYAN}│${RESET}"
-echo -e "${TEXT_CYAN}└────────────────────────────────────────────────────────┘${RESET}"
-echo -ne "\n${TEXT_YELLOW}➔ Sélectionner une option (1-3) : ${RESET}"
-read -r choice
-
-case "$choice" in
-  1)
-    echo -e "\n${TEXT_GREEN}[*] Lancement du déploiement distant...${RESET}"
-    bash <(curl -fsSL "$GITHUB_URL")
-    ;;
-    
-  2)
-    echo ""
-    deploy_idx_workspace
-    echo ""
-    echo -ne "${TEXT_YELLOW}➔ Valider et exécuter le script de build ? (y/n) : ${RESET}"
-    read -r confirm
-    case "$confirm" in
-      [yY]*)
-        echo -e "${TEXT_CYAN}[*] Synchronisation avec l'hôte distant...${RESET}"
-        bash <(curl -fsSL "$GOOGLE_URL")
-        ;;
-      *)
-        echo -e "${TEXT_RED}[!] Processus interrompu par l'opérateur.${RESET}"
-        exit 0
-        ;;
+translate() {
+  local key="$1"
+  if [ "$CURRENT_LANG" = "fr" ]; then
+    case "$key" in
+      TITLE) echo "─── ARCHITECTE CENTRAL D'ENVIRONNEMENT ───" ;;
+      PANEL) echo "PANNEAU DE CONTROLE PRINCIPAL" ;;
+      OPT_1) echo "Déployer l'infrastructure GitHub Remote VPS" ;;
+      OPT_2) echo "Optimiser l'environnement Google IDX" ;;
+      OPT_3) echo "Boîte à outils (Tools)" ;;
+      OPT_4) echo "Interrompre la session et quitter" ;;
+      TOOLS_PANEL) echo "COMPOSANTS & OUTILS ACCESSOIRES" ;;
+      TOOL_XFCE) echo "Installer le Bureau Graphique XFCE (RDP Script)" ;;
+      TOOL_BACK) echo "Retour au menu principal" ;;
+      PROMPT) echo "Utilise les flèches [↑/↓] et appuie sur [ENTREE]" ;;
+      DEPLOYING) echo "[*] Lancement du déploiement distant..." ;;
+      IDX_INIT) echo "[*] Initialisation des composants Google IDX..." ;;
+      IDX_SUCCESS) echo "[+] Configuration dev.nix injectée avec succès." ;;
+      VALIDATE) echo "➔ Valider et exécuter le script de build ? (y/n) : " ;;
+      SYNC) echo "[*] Synchronisation avec l'hôte distant..." ;;
+      CANCEL) echo "[!] Processus interrompu par l'opérateur." ;;
+      EXIT_MSG) echo "Fermeture de la console N3ON." ;;
     esac
-    ;;
-    
-  3)
-    echo -e "\n${TEXT_RED}[*] Fermeture de la console N3ON.${RESET}"
-    exit 0
-    ;;
-    
-  *)
-    echo -e "\n${TEXT_RED}[!] Commande inconnue. Fin de session.${RESET}"
-    exit 1
-    ;;
-esac
+  else
+    case "$key" in
+      TITLE) echo "─── SYSTEM ENVIRONMENT CORE ARCHITECT ───" ;;
+      PANEL) echo "MAIN CONTROL PANEL" ;;
+      OPT_1) echo "Deploy GitHub Remote VPS Infrastructure" ;;
+      OPT_2) echo "Optimize Google IDX Environment" ;;
+      OPT_3) echo "Toolbox (Tools)" ;;
+      OPT_4) echo "Terminate session and exit" ;;
+      TOOLS_PANEL) echo "COMPONENTS & ACCESSORY TOOLS" ;;
+      TOOL_XFCE) echo "Install XFCE Graphical Desktop (RDP Script)" ;;
+      TOOL_BACK) echo "Return to main menu" ;;
+      PROMPT) echo "Use arrow keys [↑/↓] and press [ENTER]" ;;
+      DEPLOYING) echo "[*] Launching remote deployment..." ;;
+      IDX_INIT) echo "[*] Initializing Google IDX components..." ;;
+      IDX_SUCCESS) echo "[+] dev.nix configuration successfully injected." ;;
+      VALIDATE) echo "➔ Validate and execute build script? (y/n) : " ;;
+      SYNC) echo "[*] Synchronizing with remote host..." ;;
+      CANCEL) echo "[!] Process interrupted by operator." ;;
+      EXIT_MSG) echo "Closing N3ON console."
