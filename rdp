@@ -6,7 +6,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
 echo "=========================================="
-echo "   RDP & TAILSCALE BY GAMERBOY_l          "
+echo "   BY THE N3ON         "
 echo "          Debian 11 / Google IDX          "
 echo "=========================================="
 sleep 1
