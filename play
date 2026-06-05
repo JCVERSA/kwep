@@ -1,33 +1,51 @@
-#!/bin/bash
-# Playit installation script - Auto Installer Made by <3 Hopingboy
-# Tested on Ubuntu/Debian
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+#  N3ON Extension - Playit.gg Network Tunnel Installer
+#  Optimized for Debian/Ubuntu & Cloud Environments
+# -----------------------------------------------------------------------------
+set -euo pipefail
 
-set -e
+# -------------------------
+# Palette de Couleurs Cyberpunk
+# -------------------------
+TEXT_GREEN='\e[38;5;46m'
+TEXT_YELLOW='\e[38;5;226m'
+TEXT_CYAN='\e[38;5;45m'
+TEXT_RED='\e[38;5;196m'
+BOLD_WHITE='\e[1;37m'
+RESET='\e[0m'
 
-echo "=== Updating system ==="
+echo -e "${TEXT_CYAN}[*] Étape 1 : Mise à jour globale du système (APT)...${RESET}"
 sudo apt update -y && sudo apt upgrade -y
 
-echo "=== Installing required dependencies ==="
+echo -e "\n${TEXT_CYAN}[*] Étape 2 : Installation des dépendances requises...${RESET}"
 sudo apt install -y sudo curl gpg
 
-echo "=== Adding Playit APT repository ==="
+echo -e "\n${TEXT_CYAN}[*] Étape 3 : Ajout de la clé et du dépôt APT Playit-Cloud...${RESET}"
 curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | \
   gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
 
 echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | \
   sudo tee /etc/apt/sources.list.d/playit-cloud.list
 
-echo "=== Updating package list ==="
+echo -e "\n${TEXT_CYAN}[*] Étape 4 : Actualisation de la liste des paquets...${RESET}"
 sudo apt update -y
 
-echo "=== Installing Playit ==="
+echo -e "\n${TEXT_CYAN}[*] Étape 5 : Installation du paquet Playit...${RESET}"
 sudo apt install -y playit
 
-echo "=== Enabling Playit service ==="
-sudo systemctl enable --now playit
+echo -e "\n${TEXT_GREEN}[+] Étape 6 : Tentative d'activation du service d'arrière-plan...${RESET}"
+if systemctl --version >/dev/null 2>&1; then
+  sudo systemctl enable --now playit || echo -e "${TEXT_YELLOW}[!] Impossible d'activer le service, démarrage manuel requis.${RESET}"
+else
+  echo -e "${TEXT_YELLOW}[!] Gestionnaire systemd non détecté (Environnement Container/IDX). Passage direct à la configuration.${RESET}"
+fi
 
-echo "=== Running Playit setup ==="
+echo -e "\n${TEXT_YELLOW}[*] Étape 7 : Initialisation et configuration du tunnel...${RESET}"
+echo -e "${TEXT_CYAN}➔ Clique sur le lien généré ci-dessous pour lier ton agent Playit :${RESET}\n"
+
+# Exécution de la configuration interactive
 playit setup
 
-echo "✅ Playit installation complete!"
-echo "➡️ Run 'playit status' to check the tunnel status."
+echo -e "\n${TEXT_GREEN}✅ Installation et déploiement de Playit terminés !${RESET}"
+echo -e "${TEXT_YELLOW}➡️ Exécute la commande '${BOLD_WHITE}playit status${TEXT_YELLOW}' pour surveiller l'état de ton tunnel.${RESET}"
