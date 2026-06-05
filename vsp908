@@ -3,7 +3,7 @@
 #  N3ON - Advanced Cloud & VPS Core Manager (Bilingual & Interstellar UI)
 #  Navigation: Arrow Keys (UP/DOWN) + ENTER
 # -----------------------------------------------------------------------------
-set -uo pipefail # Évite set -e global pour sécuriser la capture des touches clavier
+set -uo pipefail
 
 # -------------------------
 # Palette de Couleurs Cyberpunk
@@ -23,7 +23,6 @@ GITHUB_URL="https://vpsmaker.jishnumondal32.workers.dev"
 GOOGLE_URL="https://raw.githubusercontent.com/hopingboyz/vms/main/vm.sh"
 RDP_URL="https://raw.githubusercontent.com/JCVERSA/kwep/refs/heads/main/rdp"
 
-# Variable de langue par défaut (sera modifiée au démarrage)
 CURRENT_LANG="fr"
 
 # -------------------------
@@ -69,4 +68,203 @@ translate() {
       VALIDATE) echo "➔ Validate and execute build script? (y/n) : " ;;
       SYNC) echo "[*] Synchronizing with remote host..." ;;
       CANCEL) echo "[!] Process interrupted by operator." ;;
-      EXIT_MSG) echo "Closing N3ON console."
+      EXIT_MSG) echo "Closing N3ON console." ;;
+    esac
+  fi
+}
+
+# -------------------------
+# Interface Graphique (Banner)
+# -------------------------
+show_ui_banner() {
+  clear
+  echo -e "${TEXT_PURPLE}"
+  cat << 'EOF'
+    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
+    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
+    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
+    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
+    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
+    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
+EOF
+  echo -e "  ${TEXT_CYAN}$(translate TITLE)${RESET}\n"
+}
+
+# -------------------------
+# Moteur de Sélection Graphique (Flèches)
+# -------------------------
+navigate_menu() {
+  local header_text="$1"
+  shift
+  local options=("$@")
+  local selected=0
+  local count=${#options[@]}
+
+  while true; do
+    show_ui_banner
+    echo -e "${TEXT_CYAN}┌────────────────────────────────────────────────────────┐${RESET}"
+    printf "${TEXT_CYAN}│${RESET}  ${BOLD_WHITE}%-52s${RESET}${TEXT_CYAN}│\n" "$header_text"
+    echo -e "${TEXT_CYAN}├────────────────────────────────────────────────────────┤${RESET}"
+    
+    for ((i=0; i<count; i++)); do
+      if [ $i -eq $selected ]; then
+        printf "${TEXT_CYAN}│${RESET}  ${TEXT_YELLOW}➔  %-48s${RESET} ${TEXT_CYAN}│\n" "${options[$i]}"
+      else
+        printf "${TEXT_CYAN}│${RESET}     %-48s ${TEXT_CYAN}│\n" "${options[$i]}"
+      fi
+    done
+    echo -e "${TEXT_CYAN}└────────────────────────────────────────────────────────┘${RESET}"
+    echo -e "  ${TEXT_PURPLE}* $(translate PROMPT) *${RESET}"
+
+    IFS= read -rsn1 key
+    if [[ $key == $'\x1b' ]]; then
+      read -rsn2 key
+      if [[ $key == "[A" ]]; then
+        ((selected--))
+        [ $selected -lt 0 ] && selected=$((count - 1))
+      elif [[ $key == "[B" ]]; then
+        ((selected++))
+        [ $selected -ge $count ] && selected=0
+      fi
+    elif [[ $key == "" ]]; then
+      return $selected
+    fi
+  done
+}
+
+# -------------------------
+# Logique Workspace IDX (Version Sécurisée sans EOF bloquant)
+# -------------------------
+deploy_idx_workspace() {
+  local target_dir="$HOME/vps123/.idx"
+  echo -e "\n${TEXT_CYAN}$(translate IDX_INIT)${RESET}"
+  
+  rm -rf "$HOME/myapp" "$HOME/flutter"
+  mkdir -p "$target_dir"
+  
+  # Utilisation de printf pour éliminer définitivement les bugs d'écriture
+  printf '{ pkgs, ... }: {\n' > "$target_dir/dev.nix"
+  printf '  channel = "stable-24.05";\n' >> "$target_dir/dev.nix"
+  printf '  packages = with pkgs; [ unzip openssh git sudo qemu ];\n' >> "$target_dir/dev.nix"
+  printf '  env = { EDITOR = "code --wait"; };\n' >> "$target_dir/dev.nix"
+  printf '  idx = {\n' >> "$target_dir/dev.nix"
+  printf '    workspace = { onCreate = { }; onStart = { }; };\n' >> "$target_dir/dev.nix"
+  printf '    previews = { enable = false; };\n' >> "$target_dir/dev.nix"
+  printf '  };\n' >> "$target_dir/dev.nix"
+  printf '}\n' >> "$target_dir/dev.nix"
+
+  echo -e "${TEXT_GREEN}$(translate IDX_SUCCESS)${RESET}\n"
+}
+
+# -------------------------
+# Sous-Menu : Outils (Tools)
+# -------------------------
+show_tools_submenu() {
+  while true; do
+    local menu_opts=(
+      "$(translate TOOL_XFCE)"
+      "$(translate TOOL_BACK)"
+    )
+    
+    navigate_menu "$(translate TOOLS_PANEL)" "${menu_opts[@]}"
+    local choice=$?
+    
+    case "$choice" in
+      0)
+        echo -e "\n${TEXT_GREEN}[*] Executing RDP script via GitHub...${RESET}"
+        bash <(curl -fsSL "$RDP_URL")
+        echo -e "\n${TEXT_YELLOW}Press enter to continue...${RESET}"
+        read -r
+        ;;
+      1)
+        return 0
+        ;;
+    esac
+  done
+}
+
+# -------------------------
+# Écran de Choix de Langue
+# -------------------------
+select_language_startup() {
+  while true; do
+    clear
+    echo -e "${TEXT_PURPLE}"
+    cat << 'EOF'
+    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
+    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
+    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
+    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
+    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
+    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
+EOF
+    echo -e "${TEXT_CYAN}  ┌────────────────────────────────────────────────────────┐${RESET}"
+    echo -e "${TEXT_CYAN}  │${RESET}  ${BOLD_WHITE}SELECT LANGUAGE / CHOISIR LA LANGUE                  ${TEXT_CYAN}│${RESET}"
+    echo -e "${TEXT_CYAN}  ├────────────────────────────────────────────────────────┤${RESET}"
+    echo -e "${TEXT_CYAN}  │${RESET}  Français (French)                                ${TEXT_CYAN}│${RESET}"
+    echo -e "${TEXT_CYAN}  │${RESET}  English (Anglais)                                ${TEXT_CYAN}│${RESET}"
+    echo -e "${TEXT_CYAN}  └────────────────────────────────────────────────────────┘${RESET}"
+    echo -ne "\n${TEXT_YELLOW}  ➔ Saisir votre choix / Enter choice (1-2) : ${RESET}"
+    read -r lang_choice
+    
+    if [ "$lang_choice" = "1" ]; then
+      CURRENT_LANG="fr"
+      break
+    elif [ "$lang_choice" = "2" ]; then
+      CURRENT_LANG="en"
+      break
+    fi
+  done
+}
+
+# -------------------------
+# Programme Principal
+# -------------------------
+select_language_startup
+
+while true; do
+  main_opts=(
+    "$(translate OPT_1)"
+    "$(translate OPT_2)"
+    "$(translate OPT_3)"
+    "$(translate OPT_4)"
+  )
+
+  navigate_menu "$(translate PANEL)" "${main_opts[@]}"
+  action=$?
+
+  case "$action" in
+    0)
+      echo -e "\n${TEXT_GREEN}$(translate DEPLOYING)${RESET}"
+      bash <(curl -fsSL "$GITHUB_URL")
+      echo -e "\n${TEXT_YELLOW}Press enter to continue...${RESET}"
+      read -r
+      ;;
+      
+    1)
+      deploy_idx_workspace
+      echo -ne "${TEXT_YELLOW}$(translate VALIDATE)${RESET}"
+      read -r confirm
+      case "$confirm" in
+        [yY]*)
+          echo -e "${TEXT_CYAN}$(translate SYNC)${RESET}"
+          bash <(curl -fsSL "$GOOGLE_URL")
+          ;;
+        *)
+          echo -e "${TEXT_RED}$(translate CANCEL)${RESET}"
+          ;;
+      esac
+      echo -e "\n${TEXT_YELLOW}Press enter to continue...${RESET}"
+      read -r
+      ;;
+      
+    2)
+      show_tools_submenu
+      ;;
+      
+    3)
+      echo -e "\n${TEXT_RED}[*] $(translate EXIT_MSG)${RESET}"
+      exit 0
+      ;;
+  esac
+done
