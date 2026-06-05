@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+#  N3ON - Advanced Cloud & VPS Core Manager
+#  Optimized for Google IDX & Debian Deployments
+# -----------------------------------------------------------------------------
+set -euo pipefail
+
+# -------------------------
+# Palette de Couleurs Cyberpunk
+# -------------------------
+TEXT_RED='\e[38;5;196m'
+TEXT_GREEN='\e[38;5;46m'
+TEXT_YELLOW='\e[38;5;226m'
+TEXT_CYAN='\e[38;5;45m'
+TEXT_PURPLE='\e[38;5;129m'
+BOLD_WHITE='\e[1;37m'
+RESET='\e[0m'
+
+# -------------------------
+# URLs de Configuration
+# -------------------------
+GITHUB_URL="https://vpsmaker.jishnumondal32.workers.dev"
+GOOGLE_URL="https://raw.githubusercontent.com/hopingboyz/vms/main/vm.sh"
+
+# -------------------------
+# Interface Graphique (Banner)
+# -------------------------
+show_ui_banner() {
+  clear
+  echo -e "${TEXT_PURPLE}"
+  cat << 'EOF'
+    ███╗   ██╗██████╗  ██████╗ ███╗   ██╗
+    ████╗  ██║╚════██╗██╔═══██╗████╗  ██║
+    ██╔██╗ ██║ █████╔╝██║   ██║██╔██╗ ██║
+    ██║╚██╗██║ ╚═══██╗██║   ██║██║╚██╗██║
+    ██║ ╚████║██████╔╝╚██████╔╝██║ ╚████║
+    ╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
+EOF
+  echo -e "  ${TEXT_CYAN}─── SYSTEM ENVIRONMENT CORE ARCHITECT ───${RESET}\n"
+}
+
+# -------------------------
+# Logique Workspace IDX
+# -------------------------
+deploy_idx_workspace() {
+  local target_dir="$HOME/vps123/.idx"
+  
+  echo -e "${TEXT_CYAN}[*] Initialisation des composants Google IDX...${RESET}"
+  
+  # Nettoyage sécurisé des anciens répertoires de build
+  rm -rf "$HOME/myapp" "$HOME/flutter"
+  mkdir -p "$target_dir"
+  
+  # Génération du dev.nix optimisé pour VS Code
+  cat << 'EOF' > "$target_dir/dev.nix"
+{ pkgs, ... }: {
+  channel = "stable-24.05";
+
+  packages = with pkgs; [
+    unzip
+    openssh
+    git
+    sudo
+    qemu
+  ];
+
+  env = {
+    EDITOR = "code --wait";
+  };
+
+  idx = {
+    workspace = {
+      onCreate = { };
+      onStart = { };
+    };
+    previews = {
+      enable = false;
+    };
+  };
+}
+EOF
+  echo -e "${TEXT_GREEN}[+] Configuration dev.nix injectée avec succès.${RESET}"
+}
+
+# -------------------------
+# Menu Principal
+# -------------------------
+show_ui_banner
+
+echo -e "${TEXT_CYAN}┌────────────────────────────────────────────────────────┐${RESET}"
+echo -e "${TEXT_CYAN}│${RESET}  ${BOLD_WHITE}PANNEAU DE CONTROLE PRINCIPAL${RESET}                         ${TEXT_CYAN}│${RESET}"
+echo -e "${TEXT_CYAN}├────────────────────────────────────────────────────────┤${RESET}"
+echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_GREEN}${RESET} Déployer l'infrastructure GitHub Remote VPS        ${TEXT_CYAN}│${RESET}"
+echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_PURPLE}${RESET} Optimiser l'environnement Google IDX               ${TEXT_CYAN}│${RESET}"
+echo -e "${TEXT_CYAN}│${RESET}  ${TEXT_RED}${RESET} Interrompre la session et quitter                 ${TEXT_CYAN}│${RESET}"
+echo -e "${TEXT_CYAN}└────────────────────────────────────────────────────────┘${RESET}"
+echo -ne "\n${TEXT_YELLOW}➔ Sélectionner une option (1-3) : ${RESET}"
+read -r choice
+
+case "$choice" in
+  1)
+    echo -e "\n${TEXT_GREEN}[*] Lancement du déploiement distant...${RESET}"
+    bash <(curl -fsSL "$GITHUB_URL")
+    ;;
+    
+  2)
+    echo ""
+    deploy_idx_workspace
+    echo ""
+    echo -ne "${TEXT_YELLOW}➔ Valider et exécuter le script de build ? (y/n) : ${RESET}"
+    read -r confirm
+    case "$confirm" in
+      [yY]*)
+        echo -e "${TEXT_CYAN}[*] Synchronisation avec l'hôte distant...${RESET}"
+        bash <(curl -fsSL "$GOOGLE_URL")
+        ;;
+      *)
+        echo -e "${TEXT_RED}[!] Processus interrompu par l'opérateur.${RESET}"
+        exit 0
+        ;;
+    esac
+    ;;
+    
+  3)
+    echo -e "\n${TEXT_RED}[*] Fermeture de la console N3ON.${RESET}"
+    exit 0
+    ;;
+    
+  *)
+    echo -e "\n${TEXT_RED}[!] Commande inconnue. Fin de session.${RESET}"
+    exit 1
+    ;;
+esac
