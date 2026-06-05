@@ -47,23 +47,10 @@ fi
 echo "[7/9] Configuration de Firefox pour l'environnement RDP..."
 sudo sed -i 's|^Exec=firefox-esr.*|Exec=firefox-esr --no-sandbox --disable-seccomp %u|' /usr/share/applications/firefox-esr.desktop
 
-echo "[8/9] Installation de Tailscale..."
-if ! command -v tailscale >/dev/null 2>&1; then
-    curl -fsSL https://tailscale.com/install.sh | sh
-else
-    echo "[+] Tailscale est déjà installé."
-fi
-
-echo "[9/9] Connexion à Tailscale..."
-# Note : On lance 'tailscale up' de manière à ce qu'il affiche le lien d'authentification dans ton terminal.
-echo "--------------------------------------------------------"
-echo "👉 CLIQUER SUR LE LIEN CI-DESSOUS POUR CONNECTER L'IDX :"
-echo "--------------------------------------------------------"
-sudo tailscale up
 
 echo "=========================================="
 echo " ✅ Bureau XRDP configuré"
 echo " ✅ Service démarré en tâche de fond"
-echo " ✅ Tailscale est configuré"
+echo " "
 echo "=========================================="
 echo "Une fois connecté, utilise l'IP Tailscale de cette machine pour t'y connecter en RDP."
